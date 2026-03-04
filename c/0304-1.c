@@ -22,6 +22,11 @@ scanf, input
 
 "%d" indicates the input type (integer)
 & get the address
+
+about the scanf format - for %d, any white space will be skipped - others mentioned in recitations
+about printf format
+
+summary - header files, main function, scanf/printf, return value, string
 */
 #include<stdio.h>
 
@@ -36,6 +41,6 @@ double ff(double x, double y){
 int main(void){//main function, designated start of the program
     int a,b;
     scanf("%d %d",&a,&b);
-    printf("%s %d","Hello world\n",a+b);
+    printf("%s %d + %d = %d","Hello world\n",a,b,a+b);
     return 0;
 }

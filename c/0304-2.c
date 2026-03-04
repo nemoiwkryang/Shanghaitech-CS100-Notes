@@ -8,6 +8,10 @@ readability - declare right before used; meaningful names
 */
 #include<stdio.h>
 int x,y;//global
+int out;
+void print(void){
+    printf("%d",out);
+}
 int main(void)
 {
     int p,q;//local
@@ -16,6 +20,7 @@ int main(void)
         return a>b?a:b;
     }
     scanf("%d%d",&p,&q);
-    printf("%d",max(p,q));
+    out=max(p,q);
+    print();
     return 0;
 }

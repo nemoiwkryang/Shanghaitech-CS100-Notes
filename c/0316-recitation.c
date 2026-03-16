@@ -27,6 +27,8 @@ and any whitespace char in format string skips all whitespaces until the next on
 thus, "%d\n" will never end after the last input number
 
 wrong format will cause undefined behavior
+
+trick - use " %c" to ignore whitespaces when reading a character
 */
 #include<stdio.h>
 int main()

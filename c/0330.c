@@ -74,7 +74,7 @@ the difference of *[] and [][] if init with str literal
 #include<stdbool.h>
 
 void fun(int a[10]){
-    printf("\n%zu\n",sizeof(a));
+    printf("\n%d\n",sizeof(a));
 }
 
 int main(void){

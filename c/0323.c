@@ -43,6 +43,6 @@ int main(void){
     printf("%d\n",a);
     swap(&a,&b);
     printf("%d %d\n",a,b);
-    int a[5][3]={0};
+    int c[5][3]={0};
     return 0;
 }

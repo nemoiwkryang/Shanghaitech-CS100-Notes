@@ -31,11 +31,6 @@
 - 参考网站：cppreference.com
 - 标准：基于C17和C++17
 
-### 1.4 编译命令示例
-```bash
-gcc -x objective-c -std=c17 `gnustep-config --objc-flags` -lgnustep-base <.m file> -o <output>
-```
-
 ---
 
 ## 二、C语言基础

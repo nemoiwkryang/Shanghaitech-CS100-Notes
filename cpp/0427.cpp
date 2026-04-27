@@ -66,26 +66,6 @@ introducing - reference to const - can be bound to anything
 ---
 */
 
-/*
-vector - in stl file <vector>
-class template, need to pass a value type
-std::vector<ElemType> name;
-type - std::vector<ElemType>
-init - name{} or name = {} , or (num[, init_value]) for batch init 
-copy - just use assignment =
-feature after Cpp17 - class template arg deduction - auto deduce value type 
-
-std::vector.size(),.empty()
-std::vector.clear(), push_back(), pop_back()
-.back() -> return &Elemtype = last value 
-same as .front()
-vector[i] - may cause UB
-
-the style of STL - integrate better things without more problems
-    basic op automatical
-    auto init
-    auto copy
-*/
 
 
 #include<iostream>
@@ -150,6 +130,27 @@ void string_and_reference(){
     }
     std::cout << num_str << std::endl;
 }
+/*
+vector - in stl file <vector>
+class template, need to pass a value type
+std::vector<ElemType> name;
+type - std::vector<ElemType>
+init - name{} or name = {} , or (num[, init_value]) for batch init 
+copy - just use assignment =
+feature after Cpp17 - class template arg deduction - auto deduce value type 
+
+std::vector.size(),.empty()
+std::vector.clear(), push_back(), pop_back()
+.back() -> return &Elemtype = last value 
+same as .front()
+vector[i] - may cause UB
+
+the style of STL - integrate better things without more problems
+    basic op automatical
+    auto init
+    auto copy
+*/
+
 void vectors(){
     std::vector a(3,2);
     std::cout << a.size() << '\n';

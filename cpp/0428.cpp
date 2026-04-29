@@ -65,6 +65,23 @@ functions in cpp
 - function overloading
     - multi function with same name can be differenciated available
     - differenciated by params
+    - basic rules for overload
+        - exact match - identical types, decay, top-level const
+        - low level const
+        - intergral / floating-point promotion (bool/char-int, float-double)
+        - other conversion(int-long, long-int, signed-unsigned)
+
+- only overload op that do similar things
+
+---
+
+null pointer
+    - NULL - likely to be int 0, defined by macro
+    - nullptr
+
+---
+passing array as reference to array
+better than function overloading - template, talk about it later
 */
 
 // int fun(int x=0, int y){ 
@@ -72,7 +89,7 @@ int fun(int x, int y=0){
     return x+y;
 }
 double fun(double x, double y=0){ 
-    return x+y;
+    return x+y+1;
 }
 std::string fun(std::string a, std::string b){
     return a+b;
@@ -85,22 +102,34 @@ void fun(int (&a)[]){
     a[0]++;
 }
 void fun(int *a){
+    std::cout << "int*" << std::endl;
     *a++;
 }
 
-int main()
-{
-    auto_deduce();
+void fun(const int *a){
+    std::cout << "const int*" << std::endl;
+}
+
+void function_overload(){
+    int a[10]{};
     std::cout<< fun(1) << std::endl;
+    std::cout<< fun('1') << std::endl; // - int
+    std::cout<< fun(1.1f) << std::endl; // - double
     std::cout<< fun(2,3) << std::endl;
     std::cout<< fun(2.0,3.0) << std::endl;
     std::cout<< fun("2.0","3.0") << std::endl;
-    int a[10]{};
-    fun(&a[0]);
+    fun(&a[0]); // int*
+
     // fun(a); // a[10] exact matchs (&a)[], (&a)[10] and *a
     // however, does not match (&a)[N] that N!=10
     for(auto i:a){
         std::cout << i << std::endl;
     }
+}
+
+int main()
+{
+    auto_deduce();
+    function_overload();
     return 0;
 }

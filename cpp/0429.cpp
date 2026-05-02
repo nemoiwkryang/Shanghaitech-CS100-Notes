@@ -60,6 +60,48 @@ more about default constructor
 exceptions - 
 static are not discussed here
 mutable members can be modified with const member functions
+
+
+---
+
+lifetime / scopp
+- non-static init->out of scope each time
+- global - before main -> terminate
+- heap - new -> delete
+    - not for the allocs and free
+
+destructor for classes
+~ClassNeme(){}
+useful for dynamic memory
+
+usage of new and delete
+new ElemType() or {} -> pointer
+delete ptr or delete[] ptr for array; mismatch causes UB
+the behaviors are actually like malloc (0 malloc may take some memory)
+
+---
+
+copy actions
+default behavior - just copy -> pointer copy
+copy constructor
+ClassName(const Classname &other) - & for avoid copy, const for guarantee
+e.g. dynarray, use memcpy or for copy'
+if no, synthesized copy constructor - each attrubute copied
+use delete to define a deleted copy constructor, like that default
+
+assignment op - use operator overloading, or synthesized like copy (or use default explicitly)
+discussed later
+Returntype operator op (args){}
+
+many implement problems that should be considered
+memory safety?
+self assignment?
+self copy?
+
+rule of 3 - after cpp11 - 
+if any of copy, assignment, destructor is user-def-ed,
+the others are not auto generated
+
 */
 
 #include<iostream>
@@ -91,6 +133,11 @@ public:
     }
     Stu() = default; // because of reference failure, no default synthesized
 
+    ~Stu(){
+        std::cout << "destructor called!" << std::endl;
+    }
+
+
     void printName() const{
         // this->name="0"; // fail 
         std::cout << name << " " << id << " " << entranceYear << std::endl;
@@ -98,10 +145,17 @@ public:
     bool valid() const{
         return std::stoi(id.substr(0,4)) == entranceYear; 
     }
+
+
+
 };
 
 int main()
 {
+    {
+        Stu s_scope("Harikae","2025123456",2025);
+    }
+    
     Stu s_str("Harikae","2025123456",2025);
     Stu s_inte("Harikae",2025123456,2025);
     // Stu s_empty; // failed, int& Stu::test’ should be initialized, so default constructor cannot be synthesized -> deleted function
@@ -110,5 +164,6 @@ int main()
     // better than s.setAttribute("Harikae","2025123456",2025);
     s_inte.printName();
     std::cout << std::boolalpha << s_inte.valid() << std::endl; 
+
     return 0;
 }

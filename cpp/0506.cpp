@@ -45,6 +45,10 @@ function - no body - declare; with body - defination
 
 class def - declar of all members(var, func, ...)
 member func can be def-ed outside
+
+---
+
+more about ::
 */
 
 #include<iostream>

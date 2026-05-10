@@ -17,7 +17,7 @@ class static members -> ~ global var
 name is in the class scope
 usage ClassName::VarName;
 or InstanceName.VarName
-shared by all class instances
+shared by all class instance
 application - assign a unique id
 
 caution! additional defind required outside the declaration in the class

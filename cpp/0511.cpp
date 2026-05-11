@@ -57,6 +57,17 @@ concept:
 returning a temp - just instance = returnVal of (param -> expr of params)
     after cpp17 - no copy or move, just init, e.g. std::string s(a+b);
         called copy elision
+
+returning an obj (standard, compulsive)
+    after cpp11 - no copy from func to return val, just move from funciton scope to result as tmp obj
+
+named return value optimization (compiler, optional)
+    transform move to just modifying the target object in the fuction
+        func(...){ClassName tmp, modify tmp, return tmp}
+        a = func(b,c);
+        will be modified to 
+        func(&a,...){modify a}
+
 */
 
 #include<iostream>
@@ -65,7 +76,7 @@ returning a temp - just instance = returnVal of (param -> expr of params)
 
 class T{ // rvalue steal not useful here, 'cause no arr or smth used
 // for better example see dynarray in HW5
-// Due to SSO, steal std::string may not work for short strings
+// Due to SSO, short strings are stored in stack mem, steal std::string may not work for short strings
 public:
     std::string a;
     int *num;

@@ -33,6 +33,19 @@ for *autoptr, as if .op*(), so:
 ---
 
 usr-def type conv 
+implicit, explicit
+what_cast<U>(expr), or U(expr)
+arithmetic conv are often allowed implicit
+type conv in class
+A. ctor with exactly 1 param of type T, which converts T to ClassName
+B. type conversion OP - operator TypeName() ...
+
+to disallow implicit ctor as conv, write explicit
+
+contextual conv to bool - 
+    expr -> X, X explicit conv op bool() -> bool
+    implicit applicable in: if, while, for, do-while, !, &&, ||, ?:
+    e.g. unique_ptr and shared_ptr can be just used in conditions
 */
 
 #include<algorithm>
@@ -66,9 +79,10 @@ class rational{
 
     public:
 
-    rational(int num = 0, unsigned denum = 1):m_num(num), m_denum(denum){}
+    explicit rational(int num = 0, unsigned denum = 1):m_num(num), m_denum(denum){}
 
     double to_double()const{return static_cast<double>(m_num)/m_denum;}
+
 
     rational& operator += (const rational &other){
         m_num = m_num*static_cast<int>(other.m_denum) + other.m_num*static_cast<int>(m_denum);
@@ -92,6 +106,8 @@ class rational{
         return tmp;
     }
 
+    // similar to to_double
+    operator double() const {return double(m_num)/m_denum;}
 
 };
 
@@ -124,8 +140,9 @@ rational operator*(const rational&x, const rational&y){
 }
 rational operator/(const rational&x, const rational&y){
     if(y.m_num > 0)
-        return (x.m_num*y.m_denum, x.m_denum*y.m_num);
-    return rational(-x.m_num*static_cast<int>(y.m_denum), static_cast<int>(x.m_denum)*(-y.m_num));
+        // return {x.m_num*y.m_denum, x.m_denum*y.m_num};// No. cannot use without explicit use
+        return rational{x.m_num*static_cast<int>(y.m_denum), x.m_denum*static_cast<int>(y.m_num)};
+    return rational(-x.m_num*static_cast<int>(y.m_denum), x.m_denum*static_cast<unsigned>(-y.m_num));
 }
 bool operator == (const rational&x, const rational&y){
     return x.m_num*static_cast<int>(y.m_denum) == y.m_num*static_cast<int>(x.m_denum); 
@@ -155,6 +172,10 @@ int main()
 {
     rational a;
     std::cin >> a;
-    std::cout << ++a;
+    std::cout << ++a << std::endl; // ambiguous for user: double or class R?
+    std::cout << a.to_double() << std::endl;
+    std::cout << double(a) << std::endl;
+    double b = a;
+    std::cout << b << std::endl;
     return 0;
 }

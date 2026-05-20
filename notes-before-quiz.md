@@ -1,99 +1,211 @@
 
-main, function preview; return value
-`return 0` if successful
-### omit `return 0` in main✅
-### use "return;" not in void ❌ **UB**
+# C 语言速查笔记
 
-### printf, scanf format, \n - wrong format **UB**
-- %d skip leading whitespace
+## main 函数与返回值
 
-### assign to unsupported type -> **CE**
+`main` 函数的返回值为 `return 0` 表示成功。
 
-### Best practice - declare and use lines not seperated
-### meaningful names
-### init with declare, instead of later assign
+- ✅ **可以省略 `return 0`**  
+  在 `main` 函数中，若执行到末尾无返回值，标准允许隐式返回 0。
 
-char, short, int, long, long long; signed, unsigned
-| type | >= Bytes | usually | format |
-| --- | --- | --- | ---|
-| char | 1 | 1 | %c |
-| short | 2 | 2 | %hd|
-| int | 2 | 4 | %d|
-| long | 4 | 4/8 | %ld|
-| long long | 8 | 8 | %lld|
-| float ||4| %f|
-| double ||8| %lf|
-| long double |8||%Lf|
-
-from smallest size to largest
-**About overflow - use / than \*, ...**
-**size_t - implement-def, for type size**
-
-### float types - use $\epsilon$ and abs(), not ==
-### implement - define
-### Best practice -avoid magic numbers
-\ + characters used in format, or cannot be typed
-escape sequence
-### char = signed / unsigned : implementation - defined
-
-### stdbool.h
-### simplify code - a=...; return ...; -> return ...;
+- ❌ **在 non-void 函数中使用 `return;`**  
+  未返回具体值 → **UB（未定义行为）**
 
 ---
 
-OP
-### precedence and implicit convert
-double with int -> double
-shorter with longer size-> longer size type
-% -> -5%3=-2, 5%-3=2
-integers with less than int -> int
+## 输入输出格式
 
-### signed integer overflow **UB**
-### unsigned integer not overflow
-### postfix and prefix ++/--
-### OP precedence
-**! > cmp > && > ||**
-do not determine the evaluation order of var
-**except && || ?:**
-**This may avoid UB**
+### `printf` / `scanf` 格式与 `\n`
 
-### Evaluation **UB** - modifying same obj, or modify and call it
-### switch fallthrough - remember `break`; case \<const int>
-### the problem of scope in switch and do-while
-### non-void without "return \<value>" - **UB**
-### Scope and namelookup
-### static (init only once)
-### call un-init-ed var **UB**
+- 格式不匹配 → **UB**
+- `%d` 会自动跳过前导空白字符
+
 ---
-### NULL or 0 - dereference **UB**, so does wild ptr, dangling ptr, meaningless addr
-> addr type - uintptr_t, intptr_t
-### array - VLA not supported for now; init; nested
-### array out of range **UB**
-### pointer subtract pointer not within array **UB**
-return type - ptrdiff_t
-### pointer op int movement
-### array implicit convert to ptr, and Type (*)[]
-### pointer moved to after then [N] or before [0] **UB**
-### return array - malloc / global / (static)
-### pass pointer to array will be checked (int[3] != int[2])
-### const low and high level; modify const var **UB**
-### dangling ptr, free, malloc, calloc, heap memory
-### '\0', string literal, char *, char [], malloc
-### %s seperated whitespace; fgets(ptr, maxL_arr, stream)
-### string.h
-- strlen
-- strcpy
-- strcat
-- strchr
-- strcmp
-### ctype.h
-- isaplha
-- islower
-- isupper
-- tolower
-- toupper
-- strtol/ll/ul/ull/f/d/ld
 
-### printf %p - (void*)p, except ptr to func
-### nested malloc and free
-### cmd - int main(int argc, char ** argv)
+## 类型系统
+
+### 赋值与类型
+
+- 赋值给不支持的类型 → **CE（编译错误）**
+
+### 整型
+
+| type        | >= Bytes | usually | format |
+|-------------|----------|---------|--------|
+| `char`      | 1        | 1       | `%c`   |
+| `short`     | 2        | 2       | `%hd`  |
+| `int`       | 2        | 4       | `%d`   |
+| `long`      | 4        | 4/8     | `%ld`  |
+| `long long` | 8        | 8       | `%lld` |
+
+### 浮点型
+
+| type          | usually | format |
+|---------------|---------|--------|
+| `float`       | 4       | `%f`   |
+| `double`      | 8       | `%lf`  |
+| `long double` | 8+      | `%Lf`  |
+
+- 从小到大自动提升
+- **溢出**：优先使用 `/` 而非 `*` 等操作
+- **`size_t`**：实现定义，用于表示类型/对象大小
+
+### 浮点比较
+
+- ❌ **不要用 `==` 比较浮点数**
+- ✅ **使用 `ε`（epsilon）和 `abs()` 判断近似相等**
+
+### 其他类型说明
+
+- `char` 究竟是 `signed` 还是 `unsigned` → **实现定义**
+- 布尔值：使用 `<stdbool.h>`
+
+---
+
+## 编码规范（Best Practice）
+
+- **声明与使用尽量靠近**，不要隔太远
+- **有意义的命名**
+- **声明时初始化**，不要先声明再延后赋值
+- **避免魔数（Magic Numbers）**，用宏或常量代替
+
+### 代码简化
+
+```c
+// 冗余写法
+a = ...;
+return a;
+
+// 简化写法
+return ...;
+```
+
+---
+
+## 运算符（OP）
+
+### 优先级与隐式转换
+
+- `double` 与 `int` 运算 → 提升为 `double`
+- 短整型与长整型运算 → 提升为较长类型
+- 小于 `int` 的整数类型 → 先提升为 `int`
+
+### 取模运算 `%`
+
+- `-5 % 3 == -2`
+- `5 % -3 == 2`
+
+### 优先级速记
+
+**`!` > 比较运算符 > `&&` > `||`**
+
+- 运算符优先级**不决定**变量求值顺序
+- **例外**：`&&`、`||`、`?:` 具有确定的短路求值顺序
+- 利用短路特性可避免部分 **UB**
+
+---
+
+## 未定义行为（UB）汇总
+
+| 场景 | 说明 |
+|------|------|
+| ❌ **signed integer overflow** | 有符号整型溢出 |
+| ❌ **修改同一对象多次** | 如 `i++ + ++i` |
+| ❌ **既修改又读取同一对象** | 求值顺序问题 |
+| ❌ **non-void 函数缺少 `return <value>`** | 未返回有效值 |
+| ❌ **调用未初始化变量** | 值不确定 |
+| ❌ **解引用 `NULL` 或 0** | 空指针解引用 |
+| ❌ **野指针 / 悬空指针 / 无意义地址** | 非法内存访问 |
+| ❌ **数组越界** | 访问 `[N]` 之后或 `[0]` 之前 |
+| ❌ **指针相减超出数组范围** | 结果类型为 `ptrdiff_t` |
+| ❌ **修改 `const` 变量** | 通过非 const 指针绕过 |
+
+### 其他注意事项
+
+- **unsigned 整型溢出**：定义良好（回绕），**不是 UB**
+- **后缀与前缀 `++` / `--`**：注意返回值差异
+- **`switch` fallthrough**：记得写 `break`；`case` 后必须是常量整型
+- **`switch` 与 `do-while` 的作用域问题**：注意变量声明位置
+- **`static` 局部变量**：仅初始化一次，生命周期贯穿程序
+
+---
+
+## 指针与数组
+
+### 指针基础
+
+- 地址类型：`uintptr_t`、`intptr_t`
+- 数组隐式转换为指针，类型为 `T (*)[N]`
+- 指针加减整数：按元素大小移动
+- 指针移动到 `[N]` 之后或 `[0]` 之前 → **UB**
+
+### 数组
+
+- VLA（变长数组）目前部分环境不支持
+- 支持嵌套初始化
+- 传递指针到数组时，类型会检查维度（`int[3]` ≠ `int[2]`）
+
+### 数组返回方式
+
+- `malloc` 动态分配
+- 全局数组
+- `static` 局部数组
+
+### `const` 层级
+
+- **低层 const**：指向的内容不可变
+- **高层 const**：指针本身不可变
+- 通过非 const 途径修改 const 变量 → **UB**
+
+### 字符串
+
+- 字符串以 `'\0'` 结尾
+- 字符串字面量类型：`char *`（注意可写性历史问题） / `char []`
+- 动态分配：`malloc`
+- `%s` 以空白字符分隔读取
+- 安全读取：`fgets(ptr, max_len, stream)`
+
+### 内存管理
+
+- **悬空指针**：`free` 后指针未置空
+- `malloc` / `calloc` / 堆内存管理
+- **嵌套 `malloc` 与 `free`**：注意逐层释放
+
+### 字符串与字符处理函数
+
+**`<string.h>`**
+
+- `strlen` — 长度（不含 `\0`）
+- `strcpy` — 复制
+- `strcat` — 拼接
+- `strchr` — 查找字符
+- `strcmp` — 比较
+
+**`<ctype.h>`**
+
+- `isalpha`、`islower`、`isupper`
+- `tolower`、`toupper`
+
+**转换函数**
+
+- `strtol` / `strtoll` / `strtoul` / `strtoull`
+- `strtof` / `strtod` / `strtold`
+
+---
+
+## 其他
+
+- `printf("%p", (void*)p)` — 打印指针地址（函数指针除外）
+- 命令行参数：`int main(int argc, char **argv)`
+
+---
+
+### C Struct
+
+---
+
+### C++ Introduction
+
+### C++ Class / Struct
+
+### C++ STL

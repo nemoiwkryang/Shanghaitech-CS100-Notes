@@ -11,6 +11,8 @@
 - ❌ **在 non-void 函数中使用 `return;`**  
   未返回具体值 → **UB（未定义行为）**
 
+- 多次声明(无函数体，可无变量名)，单次定义。
+
 ---
 
 ## 输入输出格式
@@ -28,8 +30,6 @@
 
 - 赋值给不支持的类型 → **CE（编译错误）**
 
-### 整型
-
 | type        | >= Bytes | usually | format |
 |-------------|----------|---------|--------|
 | `char`      | 1        | 1       | `%c`   |
@@ -38,22 +38,19 @@
 | `long`      | 4        | 4/8     | `%ld`  |
 | `long long` | 8        | 8       | `%lld` |
 
-### 浮点型
-
 | type          | usually | format |
 |---------------|---------|--------|
 | `float`       | 4       | `%f`   |
 | `double`      | 8       | `%lf`  |
 | `long double` | 8+      | `%Lf`  |
 
-- 从小到大自动提升
-- **溢出**：优先使用 `/` 而非 `*` 等操作
-- **`size_t`**：实现定义，用于表示类型/对象大小
+- 为了防止**溢出**：优先使用 `/` 而非 `*` 等操作
+- **`size_t`**：由实现定义，用于表示类型/对象大小
 
 ### 浮点比较
 
 - ❌ **不要用 `==` 比较浮点数**
-- ✅ **使用 `ε`（epsilon）和 `abs()` 判断近似相等**
+- ✅ **使用 `ε`如 1e-5 `abs()` 判断近似相等**
 
 ### 其他类型说明
 
@@ -144,6 +141,7 @@ return ...;
 - VLA（变长数组）目前部分环境不支持
 - 支持嵌套初始化
 - 传递指针到数组时，类型会检查维度（`int[3]` ≠ `int[2]`）
+- 数组常被隐式转换为指针，但数组**不是**指针
 
 ### 数组返回方式
 
@@ -164,6 +162,7 @@ return ...;
 - 动态分配：`malloc`
 - `%s` 以空白字符分隔读取
 - 安全读取：`fgets(ptr, max_len, stream)`
+  - 可读取\n, 长度包含\0(这半句是显然的)
 
 ### 内存管理
 
@@ -186,10 +185,9 @@ return ...;
 - `isalpha`、`islower`、`isupper`
 - `tolower`、`toupper`
 
-**转换函数**
+**`<stdlib.h>`**
 
-- `strtol` / `strtoll` / `strtoul` / `strtoull`
-- `strtof` / `strtod` / `strtold`
+- `strtol` / `strtoll` / `strtoul` / `strtoull` / `strtof` / `strtod` / `strtold`
 
 ---
 
@@ -201,11 +199,211 @@ return ...;
 ---
 
 ### C Struct
-
+  - Syntax
+    - declare a sturct:  struct Name {members};
+    - declare an obj: struct StructName ObjName
+      > struct necessary in C, use typedef otherwise
+    - objName.memberName; ptr -> memberName, allocation, ...
+      - `.` higher precedence than `*`
+    - sizeof (struct Name) - more than the sum of member sizes
+      > align with some specific numbers of Bytes
+    - not explicitly init-d : all members obey the rules of their types (recursive)
+      (global/static/heap - empty-init, local - un-init-d)
+  - Init
+    - initializer list
+      {...}, or {.memberName = val} (after C99, not supported in C++17)
+  - Param, Return, Assign 
+    - Member-wise copy (recursive)
+      - including arr - may replace memcpy
+      > similar to deep copy in Python
+    - ptr and addr for better performance
 ---
 
 ### C++ Introduction
+- namespace, `using spaceName::name`, `using namespace spaceName`
+- std::cin, std::cout in \<iostream>
+  - std::cin.operator<<(var) prints and returns cin
+- std::string in \<string>
+  - auto init
+  - convert from char*
+  - possible ctor: (num, char), and copy ctor, ...
+  - cin, cout, .operator+ with char* or std::string
+  - .size(), .empty()
+  - use +=, and -= instead of copying
+  - .operator<=>
+  - std::stoi, std::stol, ...
+- \<c...> header files
+- range-based for: for(ElemType var : Container), as if using var.operator=(*it)
+  - container, arr, ref to arr, ...
+  > (first, it++, *it, end)
+- nullptr matching ptr
+  > NULL may match int, implement-defined
+
+---
+  
+- ref (mostly l-ref here) - useful in avoiding copy (efficiency or modify)
+  - creating an alias, modify the object referred
+  - should be init-d, otherwise *UB*
+  - no rebind, no ref to ref
+  - lref to lvalue (except const lref), rref to rvalue
+    > const lref useful in passing tmp obj
+    > otherwise rewrite a new function with rref
+  - ref not object, (but lvalue)
+  - using ref is the same to that object
+    > similar to ptr but with some different op behaviors
+    > rref = tmp, lref = rref, then lref refers to that tmp obj
+  - array [] -> ptr, or ref to arr (&)[]
+    > ref cannot be elem of arr
+    > (&)[] means ref to arr
+> lvalue not always obj, vice versa
+
+- Declare and Init: Type */& (const, ...) Name[]/()
+  - ()changing precedence > []/()function > prefix
+  - Issues: Default Ctor: Name() is a function, not an instance constructed
+
+- std::vector<T>
+  - instantiation of class tmpl
+  - init - ctor, copy ctor, (num), (num, val)
+  - size, empty, push_back, pop_back, back, front, begin, end, at
+  - pop_back, [], front, back no bound check -> *UB* possible
+  > more methods see STL
+
+- type cast
+  - static_cast
+    > usually "harmless", e.g. int. \<-> float., lval <-> rval
+  - const_cast : removing low level const
+    > modify causes *UB*
+  - reinterpret_cast : ptr convert
+    > ptr\<T1> to T2 - usually *UB*
+
+- CTAD, auto and deduce
+  - auto var - Cpp11+
+  - auto func() - Cpp14+
+  - CTAD - Cpp17+
+  > auto params - Cpp20+
+  - decltype(expr) -> type (compile time)
+
+- function
+  - default args : param = val
+    - from L to R, default params in the end
+    > ReturnType FuncName (P1, P2, ..., Px Q1 = V1, Q2 = V2, ..., Qy = Vy)
+  - function overloading
+    - rules: 
+      - identical
+      - decay of arr
+      - high level const
+      - low level const
+      - int. or float. promotion
+      - numeric conversion
+        > just not promotion
+      - class conv
 
 ### C++ Class / Struct
+> Maybe see CS61b - many similarities to Java
 
-### C++ STL
+- Basic Syntax:
+  - Class or Struct Name{Attributes, Methods, public:, private: }
+  - access: .mem, .memfun(...), ptr->...
+  - this ptr in memfun
+    - for memfun()const{}, decltype(this) is const Name* this
+    - const member fun cannot and guarantees not to modify mem
+      - only call const fun in const
+      - const obj can only call const memfun
+      - for const obj, mem - const Type, or Type *const
+  > use const whenever possible
+  
+  - lifetime of non-static obj - see global/static/heap/global
+
+- Ctor - Special member func
+  - Syntax: T(params): mem(val), mem(val), ..., {...}
+    - function declare, init list, statement
+  - usually params const&
+  - init order = declare order
+
+  - copy ctor - accepts an obj (usually const T&)
+    - if have extra resource, copy that in func statement
+  - move ctor - accepts an rref to obj
+    - if have extra resource, steal
+  - copy and move ctor have special default behavior
+    - call copy / move ctor recursively
+
+  - no init - default
+    > in statement, assignment
+
+  - Default ctor
+    - ctor taking in no param
+    - behavior
+      - const, ref cannot be default-init-d
+      - class that cannot be default-init-d
+      - other - each is default init-d,  see global, static, heap and local, (class in class behavior are defined recursively)
+    - synthesizing default dtor
+      - if cannot be default-initialized, no default ctor generated
+    > For calling default ctor in declaring an obj, use `T var`
+    
+    > `T var()`, unfortunately, will be parsed as function declaration
+    - no default ctor, and calling it - *CE*
+  - explicit: =default, =delete - for any ctor
+
+- Dtor
+  - Syntax: ~T(){...}
+    - every member are destroyed after the statements
+    > the "last" time to interact with the members
+  - destroy order - init_order.reverse()
+  - default - dtor, recursive
+    - explicit: =default, =delete
+
+- Op overload
+  - ReturnType operator Op (params) {...}
+  - Copy assignment and move assignment (overload inside the class definition)
+    - *this is the lhr
+    - return T&
+    - **self assignment safe!**
+      > e.g. Dynarray - check same, delete[] old, new, co py
+
+      > e.g. Dynarray - check same, delete[] old, ptr assign 
+    - synthesized version - copy, recursive
+  - explicit: =default, =delete
+    - calling delete - 
+
+- static mem, friend, using
+  - using name = ElemType
+    - In classes and public, use ClassName::name outside
+    > e.g. containers usually have ...:size_type for size
+  - static - shared by classes
+    - use ClassName::name outside
+    - static function - no *this, only modify static members
+    - Obj.Name also works
+    > application - counter
+  - class / function declaration and definition
+    - declaration needs no definition (约等于{}和其中内容)
+    - define after declare
+  - friend
+    - friend declaration
+      - usually for classes and functions to access private members
+      - that is a declaration, not definition
+        > e.g. not a function definition that needs statement
+    - after that, define it outside of the class
+  
+- More about rvalue and rref
+  - temporary obj, literal(except string literal)
+  - can be bind to rref
+  - rref extends their lifetime to the end of the scope
+  - rref var is a lvalue
+  - use std:move(x) to change lvalue to rvalue
+    > in \<utility>
+  - overloading: rvalue and lvalue do not cause ambiguity
+    - basis of move ctor/assign possible
+  - rvalue is something temporary
+  - rref carries something temporary that may be destroyed soon
+
+- Rule of Five
+  - Copy, Move, Dtor should all be simuntaneously defined
+  - compiler behavior: not generate if meets rules of 3 or 5
+    - moves not generated if copy/dtor user-declared
+    - copys deleted if move declared
+    - dtor generation deprecated if copy or dtor declared
+
+- NRVO, and other optimizing things
+  - use reference when passing + assignment or just change assignment to param
+
+### C++ STL - TBC

@@ -108,6 +108,10 @@ struct mypair{
     mypair(P&& first_, Q&& second_)
         : first(std::forward<P>(first_)),second(std::forward<Q>(second_)){}
     mypair();
+
+    template <class container>
+    
+    static mypair copy_from_seq(container C);
 };
 
 // mypair::mypair()=default; // arg list of class templ missing
@@ -119,6 +123,18 @@ mypair<P,Q>::mypair()=default;
 mypair<int,int> a;
 auto&& b = mypair<int,int>(1,2);
 
+
+template<class P, class Q>
+template<class container>
+mypair<P,Q> mypair<P,Q>::copy_from_seq(container C){
+    mypair<P,Q> t;
+    t.first=C[0];
+    t.second=C[1];
+    return t;
+} 
+
+
+auto c = mypair<int,int>::copy_from_seq(std::vector({1,3}));
 /*
 class template
     - different types-instantiated classes are different types
@@ -132,6 +148,17 @@ class template
 */
 
 
+/*
+- template alias - `using` declaration
+
+- since cpp14: variable templates
+
+- non-type params:
+    - int, lval ref, ptr
+    - (since cpp20) float, literal class
+*/
+
+
 int main()
 {
     std::vector a{1,2,3,4};
@@ -139,5 +166,6 @@ int main()
     for(auto &x: a)std::cout<<x <<" ";
     std::cout<<std::endl;
     print(1,2,3,4);
+
     return 0;
 }
